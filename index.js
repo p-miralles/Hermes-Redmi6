@@ -6,7 +6,7 @@ const PROVIDERS = {
   groq: {
     url: 'https://api.groq.com/openai/v1/chat/completions',
     apiKey: process.env.GROQ_API_KEY,
-    model: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
+    model: process.env.GROQ_MODEL || 'openai/gpt-oss-20b',
   },
   mistral: {
     url: 'https://api.mistral.ai/v1/chat/completions',

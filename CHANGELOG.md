@@ -14,3 +14,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Switched LLM provider from Anthropic Claude to Mistral (native `fetch` call, dropped `@anthropic-ai/sdk` dependency).
 - Added Groq as the active provider (hit Mistral rate limits); introduced `LLM_PROVIDER` env var to switch between Groq and Mistral without code changes. Mistral config kept in place but deactivated by default.
+
+### Fixed
+- Default Groq model `llama-3.1-8b-instant` was deprecated on the free tier; switched default to `openai/gpt-oss-20b` (Groq's recommended replacement).
