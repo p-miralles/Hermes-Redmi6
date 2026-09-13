@@ -1,0 +1,14 @@
+{
+  "name": "hermes-agent",
+  "version": "0.1.0",
+  "description": "Termux-based agent for Xiaomi Redmi 6 that calls a cloud LLM API",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
+    "dotenv": "^16.4.5"
+  }
+}
