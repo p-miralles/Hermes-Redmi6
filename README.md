@@ -1,6 +1,6 @@
 # Hermes Agent
 
-Termux-based Node.js agent for a Xiaomi Redmi 6 (M1804C3DG) that calls a cloud LLM API (Mistral). No local model inference — all reasoning happens via API call, keeping the on-device footprint light.
+Termux-based Node.js agent for a Xiaomi Redmi 6 (M1804C3DG) that calls a cloud LLM API. Supports Groq (active, free tier) and Mistral (kept configured but deactivated) — switch via `LLM_PROVIDER` in `.env`. No local model inference — all reasoning happens via API call, keeping the on-device footprint light.
 
 ## Install (on the phone, via Termux)
 
@@ -20,8 +20,9 @@ Termux-based Node.js agent for a Xiaomi Redmi 6 (M1804C3DG) that calls a cloud L
 4. Set your API key:
    ```bash
    cp .env.example .env
-   nano .env   # paste your MISTRAL_API_KEY
+   nano .env   # paste your GROQ_API_KEY (get one free at https://console.groq.com)
    ```
+   `LLM_PROVIDER=groq` is the default. To switch back to Mistral later, set `LLM_PROVIDER=mistral` and fill in `MISTRAL_API_KEY`.
 5. Run:
    ```bash
    npm start -- "your prompt here"
@@ -38,6 +39,6 @@ Install Termux:Boot (F-Droid) for auto-start on device boot, or Termux:Widget fo
 
 ## Layout
 
-- `index.js` — agent entry point, sends a prompt to the Mistral API and prints the reply
-- `package.json` — dependencies (`dotenv`; Mistral API called via native `fetch`, no SDK needed)
+- `index.js` — agent entry point, sends a prompt to the configured LLM provider (Groq or Mistral) and prints the reply
+- `package.json` — dependencies (`dotenv`; providers called via native `fetch`, no SDK needed)
 - `.env.example` — template for required environment variables

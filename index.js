@@ -1,28 +1,45 @@
 require('dotenv').config();
 
-const apiKey = process.env.MISTRAL_API_KEY;
-if (!apiKey) {
-  console.error('Missing MISTRAL_API_KEY. Set it in .env');
+const PROVIDER = process.env.LLM_PROVIDER || 'groq';
+
+const PROVIDERS = {
+  groq: {
+    url: 'https://api.groq.com/openai/v1/chat/completions',
+    apiKey: process.env.GROQ_API_KEY,
+    model: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
+  },
+  mistral: {
+    url: 'https://api.mistral.ai/v1/chat/completions',
+    apiKey: process.env.MISTRAL_API_KEY,
+    model: process.env.MISTRAL_MODEL || 'mistral-small-latest',
+  },
+};
+
+const config = PROVIDERS[PROVIDER];
+if (!config) {
+  console.error(`Unknown LLM_PROVIDER "${PROVIDER}". Use one of: ${Object.keys(PROVIDERS).join(', ')}`);
+  process.exit(1);
+}
+if (!config.apiKey) {
+  console.error(`Missing API key for provider "${PROVIDER}". Set it in .env`);
   process.exit(1);
 }
 
-const MODEL = process.env.MISTRAL_MODEL || 'mistral-small-latest';
-
 async function ask(prompt) {
-  const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
+  const res = await fetch(config.url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: `Bearer ${config.apiKey}`,
     },
     body: JSON.stringify({
-      model: MODEL,
+      model: config.model,
       messages: [{ role: 'user', content: prompt }],
     }),
   });
 
   if (!res.ok) {
-    throw new Error(`Mistral API error ${res.status}: ${await res.text()}`);
+    throw new Error(`${PROVIDER} API error ${res.status}: ${await res.text()}`);
   }
 
   const data = await res.json();
