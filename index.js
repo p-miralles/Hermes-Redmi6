@@ -1,21 +1,32 @@
 require('dotenv').config();
-const Anthropic = require('@anthropic-ai/sdk');
 
-const apiKey = process.env.ANTHROPIC_API_KEY;
+const apiKey = process.env.MISTRAL_API_KEY;
 if (!apiKey) {
-  console.error('Missing ANTHROPIC_API_KEY. Set it in .env');
+  console.error('Missing MISTRAL_API_KEY. Set it in .env');
   process.exit(1);
 }
 
-const client = new Anthropic({ apiKey });
+const MODEL = process.env.MISTRAL_MODEL || 'mistral-small-latest';
 
 async function ask(prompt) {
-  const msg = await client.messages.create({
-    model: 'claude-sonnet-5',
-    max_tokens: 1024,
-    messages: [{ role: 'user', content: prompt }],
+  const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      messages: [{ role: 'user', content: prompt }],
+    }),
   });
-  return msg.content[0].text;
+
+  if (!res.ok) {
+    throw new Error(`Mistral API error ${res.status}: ${await res.text()}`);
+  }
+
+  const data = await res.json();
+  return data.choices[0].message.content;
 }
 
 async function main() {

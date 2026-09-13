@@ -1,6 +1,6 @@
 # Hermes Agent
 
-Termux-based Node.js agent for a Xiaomi Redmi 6 (M1804C3DG) that calls a cloud LLM API (Anthropic Claude). No local model inference — all reasoning happens via API call, keeping the on-device footprint light.
+Termux-based Node.js agent for a Xiaomi Redmi 6 (M1804C3DG) that calls a cloud LLM API (Mistral). No local model inference — all reasoning happens via API call, keeping the on-device footprint light.
 
 ## Install (on the phone, via Termux)
 
@@ -20,7 +20,7 @@ Termux-based Node.js agent for a Xiaomi Redmi 6 (M1804C3DG) that calls a cloud L
 4. Set your API key:
    ```bash
    cp .env.example .env
-   nano .env   # paste your ANTHROPIC_API_KEY
+   nano .env   # paste your MISTRAL_API_KEY
    ```
 5. Run:
    ```bash
@@ -38,6 +38,6 @@ Install Termux:Boot (F-Droid) for auto-start on device boot, or Termux:Widget fo
 
 ## Layout
 
-- `index.js` — agent entry point, sends a prompt to the Anthropic API and prints the reply
-- `package.json` — dependencies (`@anthropic-ai/sdk`, `dotenv`)
+- `index.js` — agent entry point, sends a prompt to the Mistral API and prints the reply
+- `package.json` — dependencies (`dotenv`; Mistral API called via native `fetch`, no SDK needed)
 - `.env.example` — template for required environment variables
