@@ -2,12 +2,16 @@
   "name": "hermes-agent",
   "version": "0.1.0",
   "description": "Termux-based agent for Xiaomi Redmi 6 that calls a cloud LLM API",
-  "main": "index.js",
+  "main": "whatsapp.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node index.js"
+    "start": "node whatsapp.js",
+    "cli": "node index.js"
   },
   "dependencies": {
-    "dotenv": "^16.4.5"
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
+    "dotenv": "^16.4.5",
+    "pino": "^10.3.1",
+    "qrcode-terminal": "^0.12.0"
   }
 }

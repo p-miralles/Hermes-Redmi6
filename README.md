@@ -1,6 +1,6 @@
 # Hermes Agent
 
-Termux-based Node.js agent for a Xiaomi Redmi 6 (M1804C3DG) that calls a cloud LLM API. Supports Groq (active, free tier) and Mistral (kept configured but deactivated) — switch via `LLM_PROVIDER` in `.env`. No local model inference — all reasoning happens via API call, keeping the on-device footprint light.
+Termux-based Node.js agent for a Xiaomi Redmi 6 (M1804C3DG), reachable over WhatsApp, that calls a cloud LLM API. Supports Groq (active, free tier) and Mistral (kept configured but deactivated) — switch via `LLM_PROVIDER` in `.env`. No local model inference — all reasoning happens via API call, keeping the on-device footprint light. Designed to run always-on, phone plugged in and idle.
 
 ## Install (on the phone, via Termux)
 
@@ -11,34 +11,62 @@ Termux-based Node.js agent for a Xiaomi Redmi 6 (M1804C3DG) that calls a cloud L
    pkg update && pkg upgrade -y
    pkg install nodejs git -y
    ```
-3. Get this project onto the phone (clone from your git remote, or transfer the folder):
+3. Get this project onto the phone:
    ```bash
-   git clone <your-repo-url>
-   cd "Hermes Redmi 6"
+   git clone git@github.com:p-miralles/Hermes-Redmi6.git
+   cd Hermes-Redmi6
    npm install
    ```
-4. Set your API key:
+4. Configure:
    ```bash
    cp .env.example .env
    nano .env   # paste your GROQ_API_KEY (get one free at https://console.groq.com)
    ```
    `LLM_PROVIDER=groq` is the default. To switch back to Mistral later, set `LLM_PROVIDER=mistral` and fill in `MISTRAL_API_KEY`.
-5. Run:
-   ```bash
-   npm start -- "your prompt here"
-   ```
 
-## Keep it running
+## Run
 
-Termux is killed when the screen locks unless you hold a wake lock:
+**WhatsApp daemon (main mode)** — persistent, listens for incoming WhatsApp messages and replies using the LLM, with per-chat conversation memory:
 ```bash
-pkg install termux-services
-termux-wake-lock
+npm start
 ```
-Install Termux:Boot (F-Droid) for auto-start on device boot, or Termux:Widget for a home-screen launcher.
+First run prints a QR code in the terminal. On your phone: WhatsApp → Settings → Linked Devices → Link a Device → scan it. Session is saved to `data/wa-auth/` so you only scan once (until you log out or delete that folder).
+
+Send `/reset` in a chat to clear that chat's memory.
+
+**One-shot CLI (quick testing, no WhatsApp)**:
+```bash
+npm run cli -- "your prompt here"
+```
+
+## Conversation memory
+
+Each WhatsApp chat gets its own history file under `data/conversations/`, capped at `MEMORY_MAX_MESSAGES` (default 40) turns — old messages roll off so the LLM context stays small on this hardware. History persists across restarts. `data/` is git-ignored (contains your WhatsApp session credentials and message content — never commit it).
+
+## Keep it running (always-on)
+
+The phone is meant to stay plugged in, idle, running the daemon continuously.
+
+1. Hold a wake lock so Termux isn't killed when the screen locks:
+   ```bash
+   termux-wake-lock
+   ```
+2. Auto-start on boot: install **Termux:Boot** from F-Droid, then:
+   ```bash
+   mkdir -p ~/.termux/boot
+   cp scripts/termux-boot/start-hermes.sh ~/.termux/boot/
+   chmod +x ~/.termux/boot/start-hermes.sh
+   ```
+   Edit the `cd` path inside that script if your clone isn't at `~/Hermes-Redmi6`. After a reboot, Termux:Boot runs it automatically (may need to open the Termux:Boot app once to grant permission).
+3. In Xiaomi/MIUI settings, disable battery optimization for Termux and Termux:Boot (Settings → Apps → \[app] → Battery saver → No restrictions) — MIUI aggressively kills background processes otherwise.
+4. Logs go to `~/hermes.log` when started via the boot script.
 
 ## Layout
 
-- `index.js` — agent entry point, sends a prompt to the configured LLM provider (Groq or Mistral) and prints the reply
-- `package.json` — dependencies (`dotenv`; providers called via native `fetch`, no SDK needed)
+- `whatsapp.js` — WhatsApp daemon: connects via Baileys, listens for messages, replies via the LLM with per-chat memory
+- `index.js` — one-shot CLI entry point for quick testing without WhatsApp
+- `lib/llm.js` — shared LLM client (Groq/Mistral), used by both `whatsapp.js` and `index.js`
+- `lib/memory.js` — per-chat conversation history, stored as JSON under `data/conversations/`
+- `scripts/termux-boot/start-hermes.sh` — boot script for Termux:Boot to auto-start the daemon
+- `package.json` — dependencies (`@whiskeysockets/baileys`, `qrcode-terminal`, `pino`, `dotenv`)
 - `.env.example` — template for required environment variables

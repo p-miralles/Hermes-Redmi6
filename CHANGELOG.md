@@ -17,3 +17,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Default Groq model `llama-3.1-8b-instant` was deprecated on the free tier; switched default to `openai/gpt-oss-20b` (Groq's recommended replacement).
+
+### Added
+- WhatsApp daemon (`whatsapp.js`) using Baileys — persistent connection, listens for incoming messages, replies via the LLM. QR-code login on first run, session persisted to `data/wa-auth/`.
+- Per-chat conversation memory (`lib/memory.js`) — history stored as JSON under `data/conversations/`, capped by `MEMORY_MAX_MESSAGES`. `/reset` command clears a chat's memory.
+- Always-on setup: `termux-wake-lock` guidance and a Termux:Boot script (`scripts/termux-boot/start-hermes.sh`) for auto-start on device boot.
+
+### Changed
+- Extracted LLM call logic into `lib/llm.js`, shared by both the WhatsApp daemon and the one-shot CLI (`index.js`, now `npm run cli`).
+- `npm start` now launches the WhatsApp daemon instead of the one-shot CLI.
+- `data/` (WhatsApp credentials + conversation history) added to `.gitignore` — never committed, contains sensitive session data.
