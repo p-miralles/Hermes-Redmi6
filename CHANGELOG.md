@@ -22,6 +22,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - WhatsApp daemon (`whatsapp.js`) using Baileys — persistent connection, listens for incoming messages, replies via the LLM. QR-code login on first run, session persisted to `data/wa-auth/`.
 - Per-chat conversation memory (`lib/memory.js`) — history stored as JSON under `data/conversations/`, capped by `MEMORY_MAX_MESSAGES`. `/reset` command clears a chat's memory.
 - Always-on setup: `termux-wake-lock` guidance and a Termux:Boot script (`scripts/termux-boot/start-hermes.sh`) for auto-start on device boot.
+- Boot script now also starts `sshd`, so the phone is reachable over SSH after a reboot without manual intervention.
+- README section on SSH access from another machine, including troubleshooting (ICMP is dropped by default on both ends — test the port with `nc`, not `ping`).
 
 ### Changed
 - Extracted LLM call logic into `lib/llm.js`, shared by both the WhatsApp daemon and the one-shot CLI (`index.js`, now `npm run cli`).
